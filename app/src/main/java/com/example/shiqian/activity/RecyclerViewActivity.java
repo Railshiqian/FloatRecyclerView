@@ -39,7 +39,6 @@ public class RecyclerViewActivity extends Activity {
         initData();
         initView();
 
-
     }
 
     private void initData() {
@@ -53,126 +52,204 @@ public class RecyclerViewActivity extends Activity {
         map = new HashMap<>();
         map.put("type", "tv");
         map.put("title", "atome");
-        map.put("head", "a");
+        map.put("head", "A");
         datas.add(map);
 
         map = new HashMap<>();
         map.put("type", "tv");
         map.put("title", "atome1");
-        map.put("head", "a");
+        map.put("head", "A");
         datas.add(map);
 
         map = new HashMap<>();
         map.put("type", "tv");
         map.put("title", "atome2");
-        map.put("head", "a");
+        map.put("head", "A");
         datas.add(map);
 
         map = new HashMap<>();
         map.put("type", "tv");
         map.put("title", "atome3");
-        map.put("head", "a");
+        map.put("head", "A");
         datas.add(map);
 
         map = new HashMap<>();
         map.put("type", "tv");
         map.put("title", "atome4");
-        map.put("head", "a");
+        map.put("head", "A");
         datas.add(map);
 
         map = new HashMap<>();
         map.put("type", "tv");
         map.put("title", "bee");
-        map.put("head", "b");
+        map.put("head", "B");
         datas.add(map);
 
         map = new HashMap<>();
         map.put("type", "tv");
         map.put("title", "bee1");
-        map.put("head", "b");
+        map.put("head", "B");
         datas.add(map);
 
         map = new HashMap<>();
         map.put("type", "tv");
         map.put("title", "bee2");
-        map.put("head", "b");
+        map.put("head", "B");
         datas.add(map);
 
         map = new HashMap<>();
         map.put("type", "tv");
         map.put("title", "carry");
-        map.put("head", "c");
+        map.put("head", "C");
         datas.add(map);
 
         map = new HashMap<>();
         map.put("type", "tv");
         map.put("title", "carry1");
-        map.put("head", "c");
+        map.put("head", "C");
         datas.add(map);
         map = new HashMap<>();
         map.put("type", "tv");
         map.put("title", "carry2");
-        map.put("head", "c");
+        map.put("head", "C");
         datas.add(map);
 
         map = new HashMap<>();
         map.put("type", "tv");
         map.put("title", "carry3");
-        map.put("head", "c");
+        map.put("head", "C");
         datas.add(map);
 
         map = new HashMap<>();
         map.put("type", "tv");
         map.put("title", "carry4");
-        map.put("head", "c");
+        map.put("head", "C");
         datas.add(map);
 
         map = new HashMap<>();
         map.put("type", "tv");
         map.put("title", "carry5");
-        map.put("head", "c");
+        map.put("head", "C");
         datas.add(map);
 
         map = new HashMap<>();
         map.put("type", "tv");
         map.put("title", "drive");
-        map.put("head", "d");
+        map.put("head", "D");
         datas.add(map);
 
         map = new HashMap<>();
         map.put("type", "tv");
         map.put("title", "drive1");
-        map.put("head", "d");
+        map.put("head", "D");
         datas.add(map);
 
         map = new HashMap<>();
         map.put("type", "tv");
         map.put("title", "drive2");
-        map.put("head", "d");
+        map.put("head", "D");
         datas.add(map);
 
         map = new HashMap<>();
         map.put("type", "tv");
         map.put("title", "drive3");
-        map.put("head", "d");
+        map.put("head", "D");
         datas.add(map);
 
         map = new HashMap<>();
         map.put("type", "tv");
         map.put("title", "drive4");
-        map.put("head", "d");
+        map.put("head", "D");
         datas.add(map);
 
         map = new HashMap<>();
         map.put("type", "tv");
         map.put("title", "drive5");
-        map.put("head", "d");
+        map.put("head", "D");
         datas.add(map);
 
         map = new HashMap<>();
         map.put("type", "tv");
         map.put("title", "drive6");
-        map.put("head", "d");
+        map.put("head", "D");
+        datas.add(map);
+
+        map = new HashMap<>();
+        map.put("type", "tv");
+        map.put("title", "Erive6");
+        map.put("head", "E");
+        datas.add(map);
+
+        map = new HashMap<>();
+        map.put("type", "tv");
+        map.put("title", "Frive6");
+        map.put("head", "F");
+        datas.add(map);
+
+        map = new HashMap<>();
+        map.put("type", "tv");
+        map.put("title", "Grive6");
+        map.put("head", "G");
+        datas.add(map);
+
+        map = new HashMap<>();
+        map.put("type", "tv");
+        map.put("title", "Hrive6");
+        map.put("head", "H");
+        datas.add(map);
+
+        map = new HashMap<>();
+        map.put("type", "tv");
+        map.put("title", "Irive6");
+        map.put("head", "I");
+        datas.add(map);
+
+        map = new HashMap<>();
+        map.put("type", "tv");
+        map.put("title", "Jrive6");
+        map.put("head", "J");
+        datas.add(map);
+
+        map = new HashMap<>();
+        map.put("type", "tv");
+        map.put("title", "Krive6");
+        map.put("head", "K");
+        datas.add(map);
+
+        map = new HashMap<>();
+        map.put("type", "tv");
+        map.put("title", "Lrive6");
+        map.put("head", "L");
+        datas.add(map);
+
+        map = new HashMap<>();
+        map.put("type", "tv");
+        map.put("title", "Mrive6");
+        map.put("head", "M");
+        datas.add(map);
+
+        map = new HashMap<>();
+        map.put("type", "tv");
+        map.put("title", "Nrive6");
+        map.put("head", "N");
+        datas.add(map);
+
+        map = new HashMap<>();
+        map.put("type", "tv");
+        map.put("title", "Orive6");
+        map.put("head", "O");
+        datas.add(map);
+
+        map = new HashMap<>();
+        map.put("type", "tv");
+        map.put("title", "Prive6");
+        map.put("head", "P");
+        datas.add(map);
+
+        map = new HashMap<>();
+        map.put("type", "tv");
+        map.put("title", "Qrive6");
+        map.put("head", "Q");
         datas.add(map);
 
 

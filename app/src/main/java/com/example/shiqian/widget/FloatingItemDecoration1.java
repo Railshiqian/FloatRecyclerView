@@ -3,12 +3,11 @@ package com.example.shiqian.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
@@ -17,15 +16,20 @@ import android.support.annotation.DrawableRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
 import com.example.shiqian.R;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Administrator on 2017/3/3 0003.
@@ -45,16 +49,16 @@ public class FloatingItemDecoration1 extends RecyclerView.ItemDecoration {
     private float mTextHeight;
     private float mTextBaselineOffset;
     private Context mContext;
+    private int whiteSpaceHeight = 10;
+    private Paint whiteSpacePaint;
     /**
      * 滚动列表的时候是否一直显示悬浮头部
      */
     private boolean showFloatingHeaderOnScrolling = true;
 
     private int headHeight;
-    private Bitmap headDrawable;
     private View headView;
     private String headStr = "Select Your City";
-    private int headTextWidth;
     private Paint headTextPaint, headBgPaint;
     private Rect mBound;
 
@@ -104,19 +108,20 @@ public class FloatingItemDecoration1 extends RecyclerView.ItemDecoration {
         mTextPaint.setAntiAlias(true);
         mTextPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16, mContext.getResources().getDisplayMetrics()));
         mTextPaint.setColor(Color.WHITE);
+        Typeface font = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD);
+        mTextPaint.setTypeface( font );
         Paint.FontMetrics fm = mTextPaint.getFontMetrics();
         mTextHeight = fm.bottom - fm.top;//计算文字高度
         mTextBaselineOffset = fm.bottom;
 
         mBackgroundPaint = new Paint();
         mBackgroundPaint.setAntiAlias(true);
-        mBackgroundPaint.setColor(Color.MAGENTA);
+        mBackgroundPaint.setColor(Color.parseColor("#998cb9"));
 
 
         //
         headView = LayoutInflater.from(mContext).inflate(R.layout.float_head_layout, null);
         headView.measure(0, 0);
-        headDrawable = headView.getDrawingCache();
         headHeight = mContext.getResources().getDimensionPixelSize(R.dimen.title_height);
 
         headTextPaint = new Paint();
@@ -124,12 +129,15 @@ public class FloatingItemDecoration1 extends RecyclerView.ItemDecoration {
         // mPaint.setColor(mTitleTextColor);
         mBound = new Rect();
         headTextPaint.getTextBounds(headStr, 0, headStr.length(), mBound);
-        headTextPaint.setColor(Color.BLACK);
+        headTextPaint.setColor(Color.WHITE);
 
         headBgPaint = new Paint();
         headBgPaint.setAntiAlias(true);
-        headBgPaint.setColor(Color.LTGRAY);
+        headBgPaint.setColor(Color.BLUE);
 
+        whiteSpacePaint = new Paint();
+        whiteSpacePaint.setAntiAlias(true);
+        whiteSpacePaint.setColor(Color.WHITE);
 
     }
 
@@ -138,6 +146,9 @@ public class FloatingItemDecoration1 extends RecyclerView.ItemDecoration {
         super.onDraw(c, parent, state);
         drawVertical(c, parent);
     }
+
+    private String nextTitle = null;
+    private String currentTitle = null;
 
     @Override
     public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
@@ -155,103 +166,90 @@ public class FloatingItemDecoration1 extends RecyclerView.ItemDecoration {
 
 
         View firstView = parent.getChildAt(0);
-
         int firstViewBottom = firstView.getBottom();
 
 //do not show title
-        if (firstVisiblePos == 0 && firstViewBottom >= headHeight) {//only draw head
-                int floatTop = firstView.getBottom() - headHeight;
-                c.drawRect(left, floatTop, right, firstViewBottom, headBgPaint);
-                c.drawText(headStr, (right - left) / 2 - mBound.width() / 2, firstViewBottom - headHeight / 2 + mBound.height() / 2, headTextPaint);
+        if (firstVisiblePos == 0 && firstViewBottom >= headHeight+whiteSpaceHeight) {//only draw "Select Your City"
+            int floatTop = firstView.getBottom() - headHeight-whiteSpaceHeight;
+            c.drawRect(left, floatTop, right, firstViewBottom-whiteSpaceHeight, headBgPaint);
+            c.drawText(headStr, (right - left) / 2 - mBound.width() / 2, firstViewBottom-whiteSpaceHeight - headHeight / 2 + mBound.height() / 2, headTextPaint);
+            c.drawRect(left,firstView.getBottom()-whiteSpaceHeight,right,firstView.getBottom(),whiteSpacePaint);
             return;
         }
 
+        View v = parent.findChildViewUnder(left + 1, headHeight + mTitleHeight+whiteSpaceHeight + 1);
+        int currentTitlePosition = parent.getChildPosition(v);
+        if (currentTitlePosition == -1) {
+            v = parent.findChildViewUnder(left + 1, headHeight + 2 * mTitleHeight +whiteSpaceHeight+ 1);
+            currentTitlePosition = parent.getChildPosition(v) - 1;
+        }
+        Log.w("tag", "currentTitlePosition:" + currentTitlePosition);
 
-        String title = getTitle(firstVisiblePos==0?1:firstVisiblePos);
-        if (TextUtils.isEmpty(title)) {
-            int floatTop = parent.getPaddingTop();
-            c.drawRect(left, floatTop, right, headHeight + floatTop, headBgPaint);
-            c.drawText(headStr, (right - left) / 2 - mBound.width() / 2, floatTop + headHeight / 2 + mBound.height() / 2, headTextPaint);
-            return;
-        }else{
-            boolean flag = false;
-            if (getTitle(firstVisiblePos + 1) != null && !title.equals(getTitle(firstVisiblePos + 1))) {
-                //说明是当前组最后一个元素，但不一定碰撞了
-//            Log.e(TAG, "onDrawOver: "+"==============" +firstVisiblePos);
-                View child = parent.findViewHolderForAdapterPosition(firstVisiblePos).itemView;
-                if (child.getTop() + child.getMeasuredHeight() < mTitleHeight) {
-                    //进一步检测碰撞
-//                Log.e(TAG, "onDrawOver: "+child.getTop()+"$"+firstVisiblePos );
-                    c.save();//保存画布当前的状态
-                    flag = true;
-                    c.translate(0, child.getTop() + child.getMeasuredHeight() - mTitleHeight);//负的代表向上
-                }
-            }
+        int nextTitlePosition = findNextTitlePosition(currentTitlePosition);
+        currentTitle = getTitle(currentTitlePosition);
+        nextTitle = keys.get(nextTitlePosition);
 
-            int top = parent.getPaddingTop()+headHeight;
+
+        View nextView = parent.findViewHolderForAdapterPosition(nextTitlePosition).itemView;
+        float nextViewTop = nextView.getTop();
+
+        if (nextViewTop > headHeight + mTitleHeight * 2+whiteSpaceHeight) {//drow "A"
+            Log.d("tag", "flag1");
+            int top = parent.getPaddingTop() + headHeight+whiteSpaceHeight;
             int bottom = top + mTitleHeight;
-            c.drawRect(left, top, right, bottom, mBackgroundPaint);
+            c.drawRoundRect(left+whiteSpaceHeight, top, right-whiteSpaceHeight, bottom,5,5, mBackgroundPaint);
             float x = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, mContext.getResources().getDisplayMetrics());//left 10dp
             float y = bottom - (mTitleHeight - mTextHeight) / 2 - mTextBaselineOffset;//计算文字baseLine
-            c.drawText(title, x, y, mTextPaint);
-            if (flag) {
-                //还原画布为初始状态
-                c.restore();
-            }
+            c.drawText(currentTitle, x, y, mTextPaint);
 
-                int floatTop = parent.getPaddingTop();
-                c.drawRect(left, floatTop, right, headHeight + floatTop, headBgPaint);
-                c.drawText(headStr, (right - left) / 2 - mBound.width() / 2, floatTop + headHeight / 2 + mBound.height() / 2, headTextPaint);
+        } else if (nextViewTop <= 2 * mTitleHeight + headHeight+whiteSpaceHeight && nextViewTop > mTitleHeight + headHeight+whiteSpaceHeight) {
+            Log.d("tag", "flag2");
+            //drow "A" and "B"
+            int top = nextView.getTop() - 2 * mTitleHeight;
+            int bottom = top + mTitleHeight;
+            c.drawRoundRect(left+whiteSpaceHeight, top, right-whiteSpaceHeight, bottom,5,5, mBackgroundPaint);
+            float x = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, mContext.getResources().getDisplayMetrics());//left 10dp
+            float y = bottom - (mTitleHeight - mTextHeight) / 2 - mTextBaselineOffset;//计算文字baseLine
+            c.drawText(currentTitle, x, y, mTextPaint);
 
+            int top2 = nextView.getTop() - mTitleHeight;
+            int bottom2 = nextView.getTop();
+            c.drawRoundRect(left+whiteSpaceHeight, top2, right-whiteSpaceHeight, bottom2,5,5, mBackgroundPaint);
+//            float x = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, mContext.getResources().getDisplayMetrics());//left 10dp
+            y = bottom2 - (mTitleHeight - mTextHeight) / 2 - mTextBaselineOffset;//计算文字baseLine
+            c.drawText(nextTitle, x, y, mTextPaint);
         }
-//        boolean flag = false;
-//        if (getTitle(firstVisiblePos + 1) != null && !title.equals(getTitle(firstVisiblePos + 1))) {
-//            //说明是当前组最后一个元素，但不一定碰撞了
-////            Log.e(TAG, "onDrawOver: "+"==============" +firstVisiblePos);
-//            View child = parent.findViewHolderForAdapterPosition(firstVisiblePos).itemView;
-//            if (child.getTop() + child.getMeasuredHeight() < mTitleHeight) {
-//                //进一步检测碰撞
-////                Log.e(TAG, "onDrawOver: "+child.getTop()+"$"+firstVisiblePos );
-//                c.save();//保存画布当前的状态
-//                flag = true;
-//                c.translate(0, child.getTop() + child.getMeasuredHeight() - mTitleHeight);//负的代表向上
-//            }
-//        }
 
-//        int top = parent.getPaddingTop();
-//        int bottom = top + mTitleHeight;
-//        c.drawRect(left, top, right, bottom, mBackgroundPaint);
-//        float x = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, mContext.getResources().getDisplayMetrics());
-//        float y = bottom - (mTitleHeight - mTextHeight) / 2 - mTextBaselineOffset;//计算文字baseLine
-//        c.drawText(title, x, y, mTextPaint);
-//        if (flag) {
-//            //还原画布为初始状态
-//            c.restore();
-//        }
+//draw "Select Your City"
+        int floatTop = parent.getPaddingTop();
+        c.drawRect(left, floatTop, right, headHeight + floatTop, headBgPaint);
+        c.drawText(headStr, (right - left) / 2 - mBound.width() / 2, floatTop + headHeight / 2 + mBound.height() / 2, headTextPaint);
 
-//        int top = parent.getPaddingTop()+headHeight;
-//        int bottom = top + mTitleHeight;
-//        c.drawRect(left, top, right, bottom, mBackgroundPaint);
-//        float x = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, mContext.getResources().getDisplayMetrics());//left 10dp
-//        float y = bottom - (mTitleHeight - mTextHeight) / 2 - mTextBaselineOffset;//计算文字baseLine
-//        c.drawText(title, x, y, mTextPaint);
-//        if (flag) {
-//            //还原画布为初始状态
-//            c.restore();
-//        }
+        c.drawRect(left,floatTop+headHeight,right,floatTop+headHeight+whiteSpaceHeight,whiteSpacePaint);
 
-//        if (firstViewBottom >= headHeight) {
-//            int floatTop = firstView.getBottom() - headHeight;
-//            c.drawRect(left, floatTop, right, firstViewBottom, headBgPaint);
-//            c.drawText(headStr, (right - left) / 2 - mBound.width() / 2, firstViewBottom - headHeight / 2 + mBound.height() / 2, headTextPaint);
-//
-//        } else {
-//            int floatTop = parent.getPaddingTop();
-//            c.drawRect(left, floatTop, right, headHeight + floatTop, headBgPaint);
-//            c.drawText(headStr, (right - left) / 2 - mBound.width() / 2, floatTop + headHeight / 2 + mBound.height() / 2, headTextPaint);
-//        }
+//        c.drawRound
 
+    }
 
+    private int findNextTitlePosition(int currentPosition) {
+
+        for (int i = currentPosition + 1; i <= maxTitlePosition; i++) {
+            if (keys.containsKey(i)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private int getMaxTitlePosition() {
+        int maxTitlePosition = -1;
+        Set<Integer> values = keys.keySet();// 得到全部的key
+        Iterator<Integer> iter = values.iterator();
+        while (iter.hasNext()) {
+            int temp = iter.next();
+            maxTitlePosition = maxTitlePosition >= temp ? maxTitlePosition : temp;
+        }
+        return maxTitlePosition;
     }
 
     @Override
@@ -260,8 +258,6 @@ public class FloatingItemDecoration1 extends RecyclerView.ItemDecoration {
         int pos = parent.getChildViewHolder(view).getAdapterPosition();
         if (keys.containsKey(pos)) {//留出头部偏移
             outRect.set(0, mTitleHeight, 0, 0);
-        } else {
-            outRect.set(0, dividerHeight, 0, 0);
         }
     }
 
@@ -282,40 +278,52 @@ public class FloatingItemDecoration1 extends RecyclerView.ItemDecoration {
     }
 
     private void drawVertical(Canvas c, RecyclerView parent) {
-        int left = parent.getPaddingLeft();
-        int right = parent.getWidth() - parent.getPaddingRight();
+        int left = parent.getPaddingLeft()+whiteSpaceHeight;
+        int right = parent.getWidth() - parent.getPaddingRight()-whiteSpaceHeight;
         int top = 0;
         int bottom = 0;
+
+
         for (int i = 0; i < parent.getChildCount(); i++) {
             View child = parent.getChildAt(i);
             final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
-            if (!keys.containsKey(params.getViewLayoutPosition())) {
-                //画普通分割线
-                top = child.getTop() - params.topMargin - dividerHeight;
-                bottom = top + dividerHeight;
-                mDivider.setBounds(left, top, right, bottom);
-                mDivider.draw(c);
-            } else {
-                //画头部
+
+            if (keys.containsKey(params.getViewLayoutPosition())) {
                 top = child.getTop() - params.topMargin - mTitleHeight;
                 bottom = top + mTitleHeight;
-                c.drawRect(left, top, right, bottom, mBackgroundPaint);
-//                float x=child.getPaddingLeft()+params.leftMargin;
+                c.drawRoundRect(left, top, right, bottom,5,5, mBackgroundPaint);
                 float x = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, mContext.getResources().getDisplayMetrics());
                 float y = bottom - (mTitleHeight - mTextHeight) / 2 - mTextBaselineOffset;//计算文字baseLine
-//                Log.e(TAG, "drawVertical: "+bottom );
                 c.drawText(keys.get(params.getViewLayoutPosition()), x, y, mTextPaint);
             }
+
         }
+
     }
 
     public void setShowFloatingHeaderOnScrolling(boolean showFloatingHeaderOnScrolling) {
         this.showFloatingHeaderOnScrolling = showFloatingHeaderOnScrolling;
     }
 
+    private int maxTitlePosition = -1;
+
     public void setKeys(Map<Integer, String> keys) {
         this.keys.clear();
         this.keys.putAll(keys);
+        dealKeyList();
+        maxTitlePosition = getMaxTitlePosition();
+    }
+
+    private ArrayList<Integer> keyList = new ArrayList<>();
+
+    private void dealKeyList() {
+        keyList.clear();
+        Set<Integer> values = keys.keySet();// 得到全部的key
+        Iterator<Integer> iter = values.iterator();
+        while (iter.hasNext()) {
+            keyList.add(iter.next());
+        }
+        Collections.sort(keyList);
     }
 
     public void setmTitleHeight(int titleHeight) {
